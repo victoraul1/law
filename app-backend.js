@@ -599,6 +599,68 @@ async function initApp() {
     if (sendButton) {
         sendButton.addEventListener('click', sendMessage);
     }
+    
+    // Enable/disable send button based on input content
+    if (messageInput && sendButton) {
+        messageInput.addEventListener('input', () => {
+            sendButton.disabled = messageInput.value.trim().length === 0;
+        });
+    }
+    
+    // Set up New Consultation button
+    const newConsultationBtn = document.getElementById('new-consultation');
+    if (newConsultationBtn) {
+        newConsultationBtn.addEventListener('click', clearConversation);
+    }
+    
+    // Set up Export button
+    const exportBtn = document.getElementById('export-chat');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', exportConversation);
+    }
+    
+    // Set up Clear All button
+    const clearBtn = document.getElementById('clear-data');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', clearConversation);
+    }
+    
+    // Set up Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const sidebar = document.getElementById('agent-sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    
+    if (mobileMenuToggle && sidebar && sidebarOverlay) {
+        mobileMenuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('active');
+        });
+        
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('active');
+        });
+    }
+    
+    // Toggle API key visibility
+    const apiKeyToggle = document.querySelector('.toggle-visibility');
+    
+    if (apiKeyToggle && apiKeyInput) {
+        apiKeyToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const isPassword = apiKeyInput.type === 'password';
+            apiKeyInput.type = isPassword ? 'text' : 'password';
+            
+            const eyeOpen = apiKeyToggle.querySelector('.eye-open');
+            const eyeClosed = apiKeyToggle.querySelector('.eye-closed');
+            
+            if (eyeOpen && eyeClosed) {
+                eyeOpen.classList.toggle('hidden');
+                eyeClosed.classList.toggle('hidden');
+            }
+        });
+    }
 }
 
 // Start the app when DOM is ready

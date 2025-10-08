@@ -7,6 +7,9 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
     SESSION_TYPE = 'filesystem'
     SESSION_FILE_DIR = '/tmp/flask_session'
+    SESSION_COOKIE_SECURE = True  # ← ADD THIS (required for HTTPS)
+    SESSION_COOKIE_HTTPONLY = True  # ← ADD THIS (security)
+    SESSION_COOKIE_SAMESITE = 'Lax'  # ← ADD THIS (allow cross-page)
     SESSION_PERMANENT = False
     SESSION_USE_SIGNER = True
     SESSION_KEY_PREFIX = 'vrg_law_'

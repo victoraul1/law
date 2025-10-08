@@ -21,9 +21,15 @@ app.config.from_object(Config)
 Session(app)
 CORS(app, origins=Config.CORS_ORIGINS, supports_credentials=True)
 
-encryption_key = Fernet.generate_key()
-cipher_suite = Fernet(encryption_key)
+SECRET_ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY')
+if not SECRET_ENCRYPTION_KEY:
+    SECRET_ENCRYPTION_KEY = base64.urlsafe_b64encode(os.urandom(32))
+    print(f"Generated new encryption key: {SECRET_ENCRYPTION_KEY.decode()}")
+    print("Add this to your environment: export ENCRYPTION_KEY='{SECRET_ENCRYPTION_KEY.decode()}'")
+else:
+    SECRET_ENCRYPTION_KEY = SECRET_ENCRYPTION_KEY.encode()
 
+cipher_suite = Fernet(SECRET_ENCRYPTION_KEY)
 def encrypt_api_key(api_key: str) -> str:
     return cipher_suite.encrypt(api_key.encode()).decode()
 
@@ -234,7 +240,10 @@ def chat():
             })
             
     except Exception as e:
+        import traceback
         print(f"Chat error: {str(e)}")
+        print("Full traceback:")
+        traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/clear', methods=['POST'])

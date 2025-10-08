@@ -92,6 +92,14 @@
                                 </div>
                             </div>
                             
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="remember-checkbox">
+                                    <span>Keep me logged in (saves API key securely in session)</span>
+                                </label>
+                                <p class="checkbox-description">When checked, your session will remain active for 7 days. Otherwise, you'll need to re-enter your API key when you close your browser.</p>
+                            </div>
+                            
                             <button id="activate-btn" class="btn-primary">
                                 <span class="btn-text">Activate AI Lawyers</span>
                                 <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24">
@@ -211,6 +219,12 @@
                             </svg>
                             Clear All
                         </button>
+                        <button id="logout-btn" class="btn-secondary" onclick="logout()">
+                            <svg width="20" height="20" viewBox="0 0 24 24">
+                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                            </svg>
+                            Logout
+                        </button>
                         <button class="dark-mode-toggle" aria-label="Toggle dark mode">
                             <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24">
                                 <circle cx="12" cy="12" r="5"/>
@@ -239,6 +253,12 @@
                         <span class="agent-name">AI Legal Assistant</span>
                         <span class="agent-status">Ready to help</span>
                     </div>
+                </div>
+                <div id="session-status" class="session-status">
+                    <svg width="16" height="16" viewBox="0 0 24 24" class="session-icon">
+                        <path d="M12 1l3.09 6.26L22 8.27l-5 4.87 1.18 6.88L12 16.77l-6.18 3.25L7 13.14 2 8.27l6.91-1.01L12 1z"/>
+                    </svg>
+                    <span id="session-text">Session expires on browser close</span>
                 </div>
             </header>
 

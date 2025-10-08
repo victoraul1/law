@@ -26,13 +26,13 @@ const BackendAPI = {
         }
     },
 
-    async activate(apiKey, provider) {
+    async activate(apiKey, provider, remember = false) {
         try {
             const response = await fetch(`${API_BASE_URL}/api/activate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ apiKey, provider })
+                body: JSON.stringify({ apiKey, provider, remember })
             });
             const data = await response.json();
             return data;
@@ -86,6 +86,21 @@ const BackendAPI = {
             return data;
         } catch (error) {
             console.error('Clear conversation error:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async logout() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/logout`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            });
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Logout error:', error);
             return { success: false, error: error.message };
         }
     }
@@ -202,6 +217,8 @@ async function activateAPI() {
     const apiKeyInput = document.getElementById('api-key-input');
     const apiKey = apiKeyInput.value.trim();
     const provider = apiKeyInput.dataset.provider;
+    const rememberCheckbox = document.getElementById('remember-checkbox');
+    const remember = rememberCheckbox ? rememberCheckbox.checked : false;
     
     if (!apiKey) {
         showToast('Please enter your API key');
@@ -218,12 +235,19 @@ async function activateAPI() {
     activateBtn.textContent = 'Validating...';
     
     try {
-        const result = await BackendAPI.activate(apiKey, provider);
+        const result = await BackendAPI.activate(apiKey, provider, remember);
         
         if (result.success) {
             isAuthenticated = true;
             showToast('Connected successfully!');
             localStorage.setItem('lastProvider', provider);
+            
+            // Store session info for display
+            if (result.expiry) {
+                sessionStorage.setItem('sessionExpiry', result.expiry);
+            }
+            sessionStorage.setItem('sessionRemember', remember);
+            
             await initializeChatScreen();
             showScreen('chat-screen');
         } else {
@@ -251,10 +275,34 @@ async function initializeChatScreen() {
         'Legal Assistant'
     );
     
+    // Update session status display
+    updateSessionStatus();
+    
     // Load available agents
     const result = await BackendAPI.getAgents();
     if (result.success && result.agents) {
         updateAgentList(result.agents);
+    }
+}
+
+// Update session status indicator
+function updateSessionStatus() {
+    const sessionText = document.getElementById('session-text');
+    if (!sessionText) return;
+    
+    const remember = sessionStorage.getItem('sessionRemember') === 'true';
+    const expiry = sessionStorage.getItem('sessionExpiry');
+    
+    if (remember && expiry) {
+        const expiryDate = new Date(expiry);
+        const formattedDate = expiryDate.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric' 
+        });
+        sessionText.textContent = `Logged in until ${formattedDate}`;
+    } else {
+        sessionText.textContent = 'Session expires on browser close';
     }
 }
 
@@ -512,6 +560,39 @@ function exportConversation() {
     URL.revokeObjectURL(url);
     
     showToast('Conversation exported');
+}
+
+// Logout function
+async function logout() {
+    const result = await BackendAPI.logout();
+    
+    if (result.success) {
+        isAuthenticated = false;
+        currentConversation = [];
+        currentAgent = 'router';
+        
+        // Clear session storage
+        sessionStorage.removeItem('sessionExpiry');
+        sessionStorage.removeItem('sessionRemember');
+        
+        // Show toast and return to landing page
+        showToast('Logged out successfully');
+        showScreen('welcome-screen');
+        
+        // Clear the API key input
+        const apiKeyInput = document.getElementById('api-key-input');
+        if (apiKeyInput) {
+            apiKeyInput.value = '';
+        }
+        
+        // Uncheck remember checkbox
+        const rememberCheckbox = document.getElementById('remember-checkbox');
+        if (rememberCheckbox) {
+            rememberCheckbox.checked = false;
+        }
+    } else {
+        showToast('Failed to logout. Please try again.');
+    }
 }
 
 // Initialize the application

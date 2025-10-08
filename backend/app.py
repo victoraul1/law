@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_session import Session
 import os
 import secrets
-from datetime import timedelta
+from datetime import datetime, timedelta
 from cryptography.fernet import Fernet
 import base64
 import json
@@ -60,6 +60,7 @@ def activate():
         data = request.json
         api_key = data.get('apiKey')
         provider = data.get('provider', 'openai')
+        remember = data.get('remember', False)
         
         if not api_key:
             return jsonify({'success': False, 'error': 'API key is required'}), 400
@@ -72,11 +73,25 @@ def activate():
             session['api_key'] = encrypted_key
             session['provider'] = provider
             session['authenticated'] = True
+            session['remember'] = remember
+            
+            # Set session permanence based on remember option
+            if remember:
+                session.permanent = True
+                # Session will persist for 7 days (configured in Config)
+                expiry = (datetime.now() + timedelta(days=7)).isoformat()
+                session['expiry'] = expiry
+            else:
+                session.permanent = False
+                # Session expires when browser closes
+                session['expiry'] = None
             
             return jsonify({
                 'success': True,
                 'message': 'API key validated successfully',
-                'provider': provider
+                'provider': provider,
+                'remember': remember,
+                'expiry': session.get('expiry')
             })
         except Exception as e:
             return jsonify({
@@ -244,8 +259,23 @@ def session_status():
     return jsonify({
         'authenticated': session.get('authenticated', False),
         'provider': session.get('provider'),
-        'session_id': session.get('session_id')
+        'session_id': session.get('session_id'),
+        'remember': session.get('remember', False),
+        'expiry': session.get('expiry')
     })
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    try:
+        # Clear all session data
+        session.clear()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Logged out successfully'
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))

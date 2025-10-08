@@ -152,16 +152,18 @@ function updateDarkModeIcons(isDark) {
 
 // Screen management
 function showScreen(screenId) {
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.add('hidden');
+    document.querySelectorAll('.page').forEach(p => {
+        p.classList.add('hidden');
+        p.classList.remove('active');
     });
     
-    const targetScreen = document.getElementById(screenId);
-    if (targetScreen) {
-        targetScreen.classList.remove('hidden');
+    const targetPage = document.getElementById(screenId);
+    if (targetPage) {
+        targetPage.classList.remove('hidden');
+        targetPage.classList.add('active');
     }
 
-    if (screenId === 'chat-screen') {
+    if (screenId === 'chat-page') {
         const messageInput = document.getElementById('message-input');
         if (messageInput) {
             messageInput.focus();
@@ -169,54 +171,11 @@ function showScreen(screenId) {
     }
 }
 
-// Provider selection
-function selectProvider(provider) {
-    document.querySelectorAll('.provider-btn').forEach(btn => {
-        btn.classList.remove('selected');
-    });
-    
-    event.target.classList.add('selected');
-    
-    const apiKeySection = document.getElementById('api-key-section');
-    const apiKeyInput = document.getElementById('api-key-input');
-    const apiKeyLabel = document.querySelector('label[for="api-key-input"]');
-    
-    apiKeySection.classList.remove('hidden');
-    
-    let placeholder = '';
-    let labelText = '';
-    
-    switch(provider) {
-        case 'openai':
-        case 'gpt-4':
-        case 'gpt-4o':
-        case 'gpt-4o-mini':
-        case 'gpt-3.5':
-            placeholder = 'sk-...';
-            labelText = 'OpenAI API Key';
-            break;
-        case 'anthropic':
-        case 'claude-sonnet':
-        case 'claude-opus':
-            placeholder = 'sk-ant-...';
-            labelText = 'Anthropic API Key';
-            break;
-        case 'grok':
-            placeholder = 'xai-...';
-            labelText = 'Grok API Key';
-            break;
-    }
-    
-    apiKeyInput.placeholder = placeholder;
-    apiKeyLabel.textContent = labelText;
-    apiKeyInput.dataset.provider = provider;
-}
-
 // API activation
 async function activateAPI() {
-    const apiKeyInput = document.getElementById('api-key-input');
+    const apiKeyInput = document.getElementById('api-key');
     const apiKey = apiKeyInput.value.trim();
-    const provider = apiKeyInput.dataset.provider;
+    const provider = document.getElementById('api-provider').value;
     const rememberCheckbox = document.getElementById('remember-checkbox');
     const remember = rememberCheckbox ? rememberCheckbox.checked : false;
     
@@ -249,7 +208,7 @@ async function activateAPI() {
             sessionStorage.setItem('sessionRemember', remember);
             
             await initializeChatScreen();
-            showScreen('chat-screen');
+            showScreen('chat-page');
         } else {
             showToast(result.error || 'Failed to validate API key');
             activateBtn.disabled = false;
@@ -264,7 +223,7 @@ async function activateAPI() {
 
 // Initialize chat screen
 async function initializeChatScreen() {
-    const chatMessages = document.getElementById('chat-messages');
+    const chatMessages = document.getElementById('messages-container');
     chatMessages.innerHTML = '';
     currentConversation = [];
     currentAgent = 'router';
@@ -427,7 +386,7 @@ async function getAgentsFromBackend() {
 
 // Add message to chat
 function addMessage(type, content, agentName = null) {
-    const chatMessages = document.getElementById('chat-messages');
+    const chatMessages = document.getElementById('messages-container');
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}`;
     
@@ -501,7 +460,7 @@ function escapeHtml(text) {
 
 // Show typing indicator
 function showTypingIndicator() {
-    const chatMessages = document.getElementById('chat-messages');
+    const chatMessages = document.getElementById('messages-container');
     const indicator = document.createElement('div');
     indicator.className = 'typing-indicator';
     indicator.id = 'typing-indicator';
@@ -577,10 +536,10 @@ async function logout() {
         
         // Show toast and return to landing page
         showToast('Logged out successfully');
-        showScreen('welcome-screen');
+        showScreen('landing-page');
         
         // Clear the API key input
-        const apiKeyInput = document.getElementById('api-key-input');
+        const apiKeyInput = document.getElementById('api-key');
         if (apiKeyInput) {
             apiKeyInput.value = '';
         }
@@ -605,19 +564,24 @@ async function initApp() {
     
     if (isAuthenticated) {
         await initializeChatScreen();
-        showScreen('chat-screen');
+        showScreen('chat-page');
     } else {
-        showScreen('welcome-screen');
+        showScreen('landing-page');
     }
     
     // Set up event listeners
-    const apiKeyInput = document.getElementById('api-key-input');
+    const apiKeyInput = document.getElementById('api-key');
     if (apiKeyInput) {
         apiKeyInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 activateAPI();
             }
         });
+    }
+    
+    const activateBtn = document.getElementById('activate-btn');
+    if (activateBtn) {
+        activateBtn.addEventListener('click', activateAPI);
     }
     
     const messageInput = document.getElementById('message-input');
@@ -634,15 +598,6 @@ async function initApp() {
     const sendButton = document.getElementById('send-button');
     if (sendButton) {
         sendButton.addEventListener('click', sendMessage);
-    }
-    
-    // Check for saved provider preference
-    const lastProvider = localStorage.getItem('lastProvider');
-    if (lastProvider) {
-        const providerBtn = document.querySelector(`.provider-btn[onclick*="${lastProvider}"]`);
-        if (providerBtn) {
-            providerBtn.click();
-        }
     }
 }
 

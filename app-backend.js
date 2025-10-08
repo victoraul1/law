@@ -152,16 +152,15 @@ function updateDarkModeIcons(isDark) {
 
 // Screen management
 function showScreen(screenId) {
-    document.querySelectorAll('.page').forEach(p => {
-        p.classList.add('hidden');
-        p.classList.remove('active');
+    document.querySelectorAll('.page').forEach(screen => {
+        screen.classList.add('hidden');
+screen.classList.remove('active');
     });
-    
-    const targetPage = document.getElementById(screenId);
-    if (targetPage) {
-        targetPage.classList.remove('hidden');
-        targetPage.classList.add('active');
-    }
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.classList.remove('hidden');
+	targetScreen.classList.add('active');
+}
 
     if (screenId === 'chat-page') {
         const messageInput = document.getElementById('message-input');
@@ -169,6 +168,49 @@ function showScreen(screenId) {
             messageInput.focus();
         }
     }
+}
+
+// Provider selection
+function selectProvider(provider) {
+    document.querySelectorAll('.provider-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    event.target.classList.add('selected');
+    
+    const apiKeySection = document.getElementById('api-key-section');
+    const apiKeyInput = document.getElementById('api-key');
+    const apiKeyLabel = document.querySelector('label[for="api-key-input"]');
+    
+    apiKeySection.classList.remove('hidden');
+    
+    let placeholder = '';
+    let labelText = '';
+    
+    switch(provider) {
+        case 'openai':
+        case 'gpt-4':
+        case 'gpt-4o':
+        case 'gpt-4o-mini':
+        case 'gpt-3.5':
+            placeholder = 'sk-...';
+            labelText = 'OpenAI API Key';
+            break;
+        case 'anthropic':
+        case 'claude-sonnet':
+        case 'claude-opus':
+            placeholder = 'sk-ant-...';
+            labelText = 'Anthropic API Key';
+            break;
+        case 'grok':
+            placeholder = 'xai-...';
+            labelText = 'Grok API Key';
+            break;
+    }
+    
+    apiKeyInput.placeholder = placeholder;
+    apiKeyLabel.textContent = labelText;
+    apiKeyInput.dataset.provider = provider;
 }
 
 // API activation
@@ -579,11 +621,6 @@ async function initApp() {
         });
     }
     
-    const activateBtn = document.getElementById('activate-btn');
-    if (activateBtn) {
-        activateBtn.addEventListener('click', activateAPI);
-    }
-    
     const messageInput = document.getElementById('message-input');
     if (messageInput) {
         messageInput.addEventListener('keypress', (e) => {
@@ -592,6 +629,14 @@ async function initApp() {
                 sendMessage();
             }
         });
+// Enable/disable send button based on input content
+    const sendButton = document.getElementById('send-button');
+    messageInput.addEventListener('input', () => {
+        if (sendButton) {
+            sendButton.disabled = messageInput.value.trim().length === 0;
+        }
+    });
+
     }
     
     // Set up send button
@@ -599,16 +644,8 @@ async function initApp() {
     if (sendButton) {
         sendButton.addEventListener('click', sendMessage);
     }
-    
-    // Enable/disable send button based on input content
-    if (messageInput && sendButton) {
-        messageInput.addEventListener('input', () => {
-            sendButton.disabled = messageInput.value.trim().length === 0;
-        });
-    }
-    
-    // Set up New Consultation button
-    const newConsultationBtn = document.getElementById('new-consultation');
+
+const newConsultationBtn = document.getElementById('new-consultation');
     if (newConsultationBtn) {
         newConsultationBtn.addEventListener('click', clearConversation);
     }
@@ -640,18 +677,20 @@ async function initApp() {
             sidebar.classList.remove('open');
             sidebarOverlay.classList.remove('active');
         });
-    }
-    
-    // Toggle API key visibility
+    }    
+
+// Toggle API key visibility
     const apiKeyToggle = document.querySelector('.toggle-visibility');
     
     if (apiKeyToggle && apiKeyInput) {
         apiKeyToggle.addEventListener('click', (e) => {
-            e.preventDefault();
+            e.preventDefault(); // Prevent any form submission
             
+            // Toggle input type
             const isPassword = apiKeyInput.type === 'password';
             apiKeyInput.type = isPassword ? 'text' : 'password';
             
+            // Toggle eye icons
             const eyeOpen = apiKeyToggle.querySelector('.eye-open');
             const eyeClosed = apiKeyToggle.querySelector('.eye-closed');
             
@@ -660,6 +699,22 @@ async function initApp() {
                 eyeClosed.classList.toggle('hidden');
             }
         });
+    }
+
+
+// Set up activate button  ← ADD THESE LINES
+    const activateBtn = document.getElementById('activate-btn');
+    if (activateBtn) {
+        activateBtn.addEventListener('click', activateAPI);
+    }
+
+    // Check for saved provider preference
+    const lastProvider = localStorage.getItem('lastProvider');
+    if (lastProvider) {
+        const providerBtn = document.querySelector(`.provider-btn[onclick*="${lastProvider}"]`);
+        if (providerBtn) {
+            providerBtn.click();
+        }
     }
 }
 

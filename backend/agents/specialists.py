@@ -49,16 +49,14 @@ class SpecialistAgent:
     
     def introduce(self) -> str:
         intros = {
-            'personal_injury': "Hello, I'm Sarah Mitchell. I understand you've been injured. First, are you okay? Tell me what happened.",
-            'business_law': "Hi, I'm Robert Chen. Let's talk about your business needs. What's the main issue you're facing?",
-            'immigration': "Hello, I'm Maria Rodriguez. I know immigration matters can be stressful. What's your current situation?",
-            'family_law': "Hi, I'm Jennifer Adams. I understand family matters are difficult. What brings you here today?",
-            'real_estate': "Hello, I'm David Thompson. What property matter can I help you with today?",
-            'estate_planning': "Hi, I'm William Harrison. Estate planning is about protecting your family. What prompted you to think about this?",
-            'employment_law': "Hello, I'm Patricia Lee. I'm here to help with your workplace issue. What happened?",
-            'criminal_defense': "I'm Michael Foster. First, don't discuss this case with anyone else but me. What are you charged with?",
-            'intellectual_property': "Hi, I'm Dr. Alan Kumar. Tell me about what you've created or what IP issue you're facing.",
-            'contract_law': "Hello, I'm Rachel Barnes. What contract issue are you dealing with?"
+            'primary_care': "Hello, I'm Dr. James Anderson. I'm here to help with your health concerns. What brings you in today?",
+            'cardiology': "Hi, I'm Dr. Sarah Chen. I specialize in heart health. What cardiac symptoms are you experiencing?",
+            'dermatology': "Hello, I'm Dr. Maria Garcia. I understand you have a skin concern. What would you like me to look at?",
+            'orthopedics': "Hi, I'm Dr. Michael Roberts. I specialize in bones and joints. Tell me about your injury or pain.",
+            'mental_health': "Hello, I'm Dr. Lisa Thompson. Thank you for reaching out. What's been on your mind?",
+            'pediatrics': "Hi, I'm Dr. David Kim. I understand you have concerns about your child. What's going on?",
+            'womens_health': "Hello, I'm Dr. Jennifer Martinez. I'm here to help with your health needs. What brings you in today?",
+            'general_surgery': "Hi, I'm Dr. Robert Wilson. I understand you may need surgery. What condition are we addressing?"
         }
         
         return intros.get(self.agent_id, f"Hello, I'm {self.name}. How can I help you with {self.specialty}?")

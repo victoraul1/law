@@ -1,5 +1,5 @@
 /**
- * Main Application Logic for VRG & AI Law - Backend Version
+ * Main Application Logic for VRG & AI Medical - Backend Version
  * This version communicates with the Python Flask backend
  */
 
@@ -272,8 +272,8 @@ async function initializeChatScreen() {
     
     // Add welcome message
     addMessage('assistant', 
-        "Welcome to VRG & AI Law! I'm here to help you connect with the right legal specialist. Could you briefly describe your legal situation?",
-        'Legal Assistant'
+        "Welcome to VRG & AI Medical! I'm here to help you connect with the right medical specialist. Could you briefly describe your health concern?",
+        'Medical Assistant'
     );
     
     // Update session status display
@@ -320,7 +320,7 @@ function updateAgentList(agents) {
     routerOption.dataset.agentId = 'router';
     routerOption.onclick = () => switchAgent('router');
     routerOption.innerHTML = `
-        <div class="agent-name">Legal Assistant</div>
+        <div class="agent-name">Medical Assistant</div>
         <div class="agent-specialty">Initial Consultation</div>
     `;
     agentList.appendChild(routerOption);
@@ -351,12 +351,12 @@ async function switchAgent(agentId) {
     // Update current agent display
     const currentAgentDisplay = document.getElementById('current-agent');
     if (currentAgentDisplay) {
-        const agentName = agentId === 'router' ? 'Legal Assistant' : 
+        const agentName = agentId === 'router' ? 'Medical Assistant' : 
             document.querySelector(`.agent-option[data-agent-id="${agentId}"] .agent-name`)?.textContent || agentId;
         currentAgentDisplay.textContent = agentName;
     }
     
-    showToast(`Switched to ${agentId === 'router' ? 'Legal Assistant' : 'specialist'}`);
+    showToast(`Switched to ${agentId === 'router' ? 'Medical Assistant' : 'specialist'}`);
 }
 
 // Send message
@@ -399,7 +399,7 @@ async function sendMessage() {
             }
             
             // Add assistant response
-            const agentName = result.agent_name || result.specialist?.name || 'Legal Assistant';
+            const agentName = result.agent_name || result.specialist?.name || 'Medical Assistant';
             addMessage('assistant', result.response, agentName);
             
             // Update current agent if changed
@@ -445,7 +445,7 @@ function addMessage(type, content, agentName = null) {
             </div>
         `;
     } else if (type === 'assistant') {
-        const displayName = agentName || 'Legal Assistant';
+        const displayName = agentName || 'Medical Assistant';
         messageDiv.innerHTML = `
             <div class="message-header">
                 <span class="agent-name">${displayName}</span>
@@ -540,7 +540,7 @@ function exportConversation() {
     }
     
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `legal-consultation-${timestamp}.json`;
+    const filename = `medical-consultation-${timestamp}.json`;
     
     const exportData = {
         timestamp: new Date().toISOString(),

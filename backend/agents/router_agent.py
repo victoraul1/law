@@ -21,7 +21,7 @@ Available specialists with their IDs:
 {agents_list}
 
 IMPORTANT: You must end your response with 'ROUTE_TO: [specialist_id]' when you determine the appropriate specialist.
-The specialist_id must be one of: personal_injury, business_law, immigration, family_law, real_estate, estate_planning, employment_law, criminal_defense, intellectual_property, contract_law
+The specialist_id must be one of: primary_care, cardiology, dermatology, orthopedics, mental_health, pediatrics, womens_health, general_surgery
 
 Be conversational, empathetic, and keep your response to 2-4 sentences before routing."""
         
@@ -63,4 +63,4 @@ Be conversational, empathetic, and keep your response to 2-4 sentences before ro
             return f"I apologize, but I'm having trouble understanding your request. Could you please rephrase it? Error: {str(e)}", None
     
     def greet(self) -> str:
-        return "Welcome to VRG & AI Law! I'm here to help you connect with the right legal specialist. Could you briefly describe your legal situation?"
+        return "Welcome to VRG & AI Medical! I'm here to help you connect with the right medical specialist. Could you briefly describe your health concern?"

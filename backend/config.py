@@ -19,7 +19,7 @@ class Config:
     MAX_TOKENS = 2000
     TEMPERATURE = 0.7
     
-    CORS_ORIGINS = ['http://localhost:5000', 'http://localhost:3000', 'http://127.0.0.1:5000', 'https://law.vrgmarketsolutions.com']
+    CORS_ORIGINS = ['http://localhost:5000', 'http://localhost:3000', 'http://127.0.0.1:5000', 'https://law.vrgmarketsolutions.com', 'https://medical.vrgmarketsolutions.com']
     
     ENV = os.environ.get('FLASK_ENV', 'development')
     DEBUG = ENV == 'development'
